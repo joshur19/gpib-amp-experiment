@@ -32,7 +32,6 @@ class AmpInterface:
     
     def query_command(self, command):
         print(tags.amp_tag + 'Command sent to AMP: ' + command)
-        #result = self.instr.query_ascii_values(command)
         self.instr.write(command)
         result = self.instr.read_bytes(1024)
         #print(tags.amp_tag + 'Answer from device: ' + result)
