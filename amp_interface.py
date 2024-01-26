@@ -34,6 +34,6 @@ class AmpInterface:
         print(tags.amp_tag + 'Command sent to AMP: ' + command)
         self.instr.write(command)
         result = self.instr.read_bytes(1024)
-        #print(tags.amp_tag + 'Answer from device: ' + result)
+        print(tags.amp_tag + 'Answer from device: ' + len(result) + ' byte long answer')
         print(result)
         return result
