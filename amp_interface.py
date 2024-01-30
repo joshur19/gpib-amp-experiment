@@ -20,7 +20,7 @@ class AmpInterface:
             self.instr.write_termination = '\r\n'
             self.instr.read_termination = '\r\n'
             self.instr.timeout = 2000
-            time.sleep(0.5)
+            time.sleep(1)
             print(tags.amp_tag + 'Succesfully connected to AMP.')
             return True
         except:

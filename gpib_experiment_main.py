@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
                     conn_error = True
 
                 self.amp.write_command(cmd)
-                time.sleep(1.5)
+                time.sleep(2)
                 status = self.ask_status_conn()
 
                 if(status == False):
@@ -160,10 +160,12 @@ class MainWindow(QMainWindow):
             # SPS auf OPR Modus bringen
             if self.amp.connect(tags.sps_addr):
                 try:
+                    self.amp.write_command('STBY')
+                    time.sleep(1)
                     self.amp.write_command('OPER')      ## todo: gucken ob das auch erfolgreich war
                 except:
                     print(tags.main_tag + 'Error setting SPS to OPR-Mode')
-                self.disconnect()
+                self.amp.disconnect()
 
             self.lb_feedback.setText('Switched to Band 1')
             QApplication.processEvents()
@@ -203,7 +205,7 @@ class MainWindow(QMainWindow):
                     conn_error = True
 
                 self.amp.write_command(cmd)
-                time.sleep(1.5)
+                time.sleep(2)
                 status = self.ask_status_conn()
 
                 if(status == False):
@@ -261,7 +263,7 @@ class MainWindow(QMainWindow):
                     conn_error = True
 
                 self.amp.write_command(cmd)
-                time.sleep(1.5)
+                time.sleep(2)
                 status = self.ask_status_conn()
 
                 if(status == False):
