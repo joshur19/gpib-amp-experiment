@@ -1,5 +1,7 @@
 """
-
+file: tags (setup) file for log styling and storing device address
+author: josh
+last updated: 30/01/2024
 """
 
 import datetime

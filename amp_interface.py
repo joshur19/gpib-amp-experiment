@@ -1,5 +1,7 @@
 """
-
+file: interface for communication with device via pyvisa library
+author: josh
+last updated: 30/01/2024
 """
 
 import pyvisa

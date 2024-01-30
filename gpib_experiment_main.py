@@ -1,5 +1,7 @@
 """
-
+file: main file that creates UI with Qt and defines the logic behind the view elements
+author: josh
+last updated: 30/01/2024
 """
 
 import amp_interface
@@ -107,11 +109,6 @@ class MainWindow(QMainWindow):
         counter = 0     # wie oft der Versuch des Bandwechsels wiederholt werden soll
         status = self.ask_status()
 
-        # SPS auf OPR Modus bringen
-        if self.amp.connect(tags.sps_addr):
-            self.amp.write_command('OPER')      ## todo: gucken ob das auch erfolgreich war
-            self.disconnect()
-
         ## status fehler
         if status == False:
             self.lb_feedback.setText('Error computing status while switching bands')
@@ -138,7 +135,7 @@ class MainWindow(QMainWindow):
                     conn_error = True
 
                 self.amp.write_command(cmd)
-                time.sleep(2)
+                time.sleep(1.5)
                 status = self.ask_status_conn()
 
                 if(status == False):
@@ -157,7 +154,17 @@ class MainWindow(QMainWindow):
         if conn_error:
             self.lb_feedback.setText('Error setting Band 1')
             QTimer.singleShot(3000, lambda: self.lb_feedback.setText(''))
+        
         else:
+
+            # SPS auf OPR Modus bringen
+            if self.amp.connect(tags.sps_addr):
+                try:
+                    self.amp.write_command('OPER')      ## todo: gucken ob das auch erfolgreich war
+                except:
+                    print(tags.main_tag + 'Error setting SPS to OPR-Mode')
+                self.disconnect()
+
             self.lb_feedback.setText('Switched to Band 1')
             QApplication.processEvents()
             self.display_status(status)
@@ -196,7 +203,7 @@ class MainWindow(QMainWindow):
                     conn_error = True
 
                 self.amp.write_command(cmd)
-                time.sleep(2)
+                time.sleep(1.5)
                 status = self.ask_status_conn()
 
                 if(status == False):
@@ -254,7 +261,7 @@ class MainWindow(QMainWindow):
                     conn_error = True
 
                 self.amp.write_command(cmd)
-                time.sleep(2)
+                time.sleep(1.5)
                 status = self.ask_status_conn()
 
                 if(status == False):
