@@ -4,6 +4,7 @@
 
 import pyvisa
 import tags
+import time
 
 class AmpInterface:
     def __init__(self):
@@ -16,6 +17,8 @@ class AmpInterface:
             self.instr = self.rm.open_resource(visa_resourcename)
             self.instr.write_termination = '\r\n'
             self.instr.read_termination = '\r\n'
+            self.instr.timeout = 2000
+            time.sleep(0.5)
             print(tags.amp_tag + 'Succesfully connected to AMP.')
             return True
         except:
@@ -34,6 +37,5 @@ class AmpInterface:
         print(tags.amp_tag + 'Command sent to AMP: ' + command)
         self.instr.write(command)
         result = self.instr.read_bytes(1024)
-        print(tags.amp_tag + 'Answer from device: ' + len(result) + ' byte long answer')
-        print(result)
+        print(tags.amp_tag + 'Answer from device: ' + str(len(result)) + ' byte long answer')
         return result

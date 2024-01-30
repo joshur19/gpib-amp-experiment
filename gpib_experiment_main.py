@@ -102,55 +102,182 @@ class MainWindow(QMainWindow):
     
     def switch_band1(self):
         cmd = 'BAND1'
+        conn_error = True
+        self.reset_faults()
+        counter = 0     # wie oft der Versuch des Bandwechsels wiederholt werden soll
         status = self.ask_status()
-        conn_error = False
-        counter = 0
 
-        while status[1] != 'BAND1':
+        # SPS auf OPR Modus bringen
+        if self.amp.connect(tags.sps_addr):
+            self.amp.write_command('OPER')      ## todo: gucken ob das auch erfolgreich war
+            self.disconnect()
 
-            if self.amp.connect(tags.sim_addr):
+        ## status fehler
+        if status == False:
+            self.lb_feedback.setText('Error computing status while switching bands')
+            QApplication.processEvents()
+            return
+
+        ## wenn Band schon gewählt ist das auch so ausgeben
+        if status[1] == 'BAND1':
+            self.lb_feedback.setText('Already in Band 1')
+            QApplication.processEvents()
+            return
+
+        ## wenn connection hergestellt werden kann
+        if self.amp.connect(tags.sim_addr):
+
+            conn_error = False
+            
+            self.lb_feedback.setText('Switching to Band 1...')
+            QApplication.processEvents()
+
+            while status[1] != 'BAND1' and conn_error == False:
+                
+                if(counter >= 6):
+                    conn_error = True
+
                 self.amp.write_command(cmd)
-                self.amp.disconnect()
-            else:
-                conn_error = True
-                break
+                time.sleep(2)
+                status = self.ask_status_conn()
 
-            if(counter >= 5):
-                conn_error = True
-                break
+                if(status == False):
+                    conn_error = True
 
-            time.sleep(3)
+                counter = counter+1
 
-            status = self.ask_status()
+            self.amp.disconnect()
 
+        ## keine connection zum Gerät
+        else:
+            self.lb_status.setText('Error: check GPIB connection')
+            QTimer.singleShot(2000, lambda: self.lb_status.setText(''))
+
+        ## wenn maximale Versuche oder Statusantwort illegal dann conn_error = True
         if conn_error:
             self.lb_feedback.setText('Error setting Band 1')
             QTimer.singleShot(3000, lambda: self.lb_feedback.setText(''))
         else:
             self.lb_feedback.setText('Switched to Band 1')
+            QApplication.processEvents()
+            self.display_status(status)
             QTimer.singleShot(4000, lambda: self.lb_feedback.setText(''))
 
-    def switch_band2(self):     ## todo: error handling einbauen wenn Konzept wie bei Band1 funktioniert
+    def switch_band2(self):     
         cmd = 'BAND2'
-        if self.amp.connect(tags.sim_addr):
-            self.amp.write_command(cmd)
-            self.amp.disconnect()
-            self.lb_feedback.setText('Switched to Band 2')
-            QTimer.singleShot(4000, lambda: self.lb_feedback.setText(''))
-        else:
-            self.lb_feedback.setText('Error: check GPIB connection')
-            QTimer.singleShot(2000, lambda: self.lb_feedback.setText(''))
+        conn_error = True
+        self.reset_faults()
+        counter = 0     # wie oft der Versuch des Bandwechsels wiederholt werden soll
+        status = self.ask_status()
 
-    def switch_band3(self):     ## todo: error handling einbauen wenn Konzept wie bei Band1 funktioniert
-        cmd = 'BAND3'
+        ## status fehler
+        if status == False:
+            self.lb_feedback.setText('Error computing status while switching bands')
+            QApplication.processEvents()
+            return
+
+        ## wenn Band schon gewählt ist das auch so ausgeben
+        if status[1] == 'BAND2':
+            self.lb_feedback.setText('Already in Band 2')
+            QApplication.processEvents()
+            return
+
+        ## wenn connection hergestellt werden kann
         if self.amp.connect(tags.sim_addr):
-            self.amp.write_command(cmd)
-            self.amp.disconnect() 
-            self.lb_feedback.setText('Switched to Band 3')
-            QTimer.singleShot(4000, lambda: self.lb_feedback.setText(''))
+
+            conn_error = False
+            
+            self.lb_feedback.setText('Switching to Band 2...')
+            QApplication.processEvents()
+
+            while status[1] != 'BAND2' and conn_error == False:
+                
+                if(counter >= 6):
+                    conn_error = True
+
+                self.amp.write_command(cmd)
+                time.sleep(2)
+                status = self.ask_status_conn()
+
+                if(status == False):
+                    conn_error = True
+
+                counter = counter+1
+
+            self.amp.disconnect()
+
+        ## keine connection zum Gerät
         else:
-            self.lb_feedback.setText('Error: check GPIB connection')
-            QTimer.singleShot(2000, lambda: self.lb_feedback.setText(''))
+            self.lb_status.setText('Error: check GPIB connection')
+            QTimer.singleShot(2000, lambda: self.lb_status.setText(''))
+
+        ## wenn maximale Versuche oder Statusantwort illegal dann conn_error = True
+        if conn_error:
+            self.lb_feedback.setText('Error setting Band 2')
+            QTimer.singleShot(3000, lambda: self.lb_feedback.setText(''))
+        else:
+            self.lb_feedback.setText('Switched to Band 2')
+            QApplication.processEvents()
+            self.display_status(status)
+            QTimer.singleShot(4000, lambda: self.lb_feedback.setText(''))
+
+    def switch_band3(self):
+        cmd = 'BAND3'
+        conn_error = True
+        self.reset_faults()
+        counter = 0     # wie oft der Versuch des Bandwechsels wiederholt werden soll
+        status = self.ask_status()
+
+        ## status fehler
+        if status == False:
+            self.lb_feedback.setText('Error computing status while switching bands')
+            QApplication.processEvents()
+            return
+
+        ## wenn Band schon gewählt ist das auch so ausgeben
+        if status[1] == 'BAND3':
+            self.lb_feedback.setText('Already in Band 3')
+            QApplication.processEvents()
+            return
+
+        ## wenn connection hergestellt werden kann
+        if self.amp.connect(tags.sim_addr):
+
+            conn_error = False
+            
+            self.lb_feedback.setText('Switching to Band 3...')
+            QApplication.processEvents()
+
+            while status[1] != 'BAND3' and conn_error == False:
+                
+                if(counter >= 6):
+                    conn_error = True
+
+                self.amp.write_command(cmd)
+                time.sleep(2)
+                status = self.ask_status_conn()
+
+                if(status == False):
+                    conn_error = True
+
+                counter = counter+1
+
+            self.amp.disconnect()
+
+        ## keine connection zum Gerät
+        else:
+            self.lb_status.setText('Error: check GPIB connection')
+            QTimer.singleShot(2000, lambda: self.lb_status.setText(''))
+
+        ## wenn maximale Versuche oder Statusantwort illegal dann conn_error = True
+        if conn_error:
+            self.lb_feedback.setText('Error setting Band 3')
+            QTimer.singleShot(3000, lambda: self.lb_feedback.setText(''))
+        else:
+            self.lb_feedback.setText('Switched to Band 3')
+            QApplication.processEvents()
+            self.display_status(status)
+            QTimer.singleShot(4000, lambda: self.lb_feedback.setText(''))
 
     def reset_faults(self):
         cmd = 'RST'
@@ -162,18 +289,38 @@ class MainWindow(QMainWindow):
         
     def status_button(self):
         status = self.ask_status()
-        self.display_status(status)
+        if status != False:
+            self.display_status(status)
+        else:
+            self.lb_status.setText('Error setting status')
+            QTimer.singleShot(2000, lambda: self.lb_status.setText(''))
+
+    def ask_status_conn(self):
+        cmd = 'STS'
+        try:
+            raw_status = self.amp.query_command(cmd)
+            status = self.parse_status(raw_status)
+            return status
+        except:
+            print(tags.main_tag + 'Error in STS call')
+            return False
 
     def ask_status(self):
         cmd = 'STS'
         if self.amp.connect(tags.sim_addr):
-            raw_status = self.amp.query_command(cmd)
-            self.amp.disconnect()
-            status = self.parse_status(raw_status)
-            return status
+            try:
+                raw_status = self.amp.query_command(cmd)
+                status = self.parse_status(raw_status)
+                self.amp.disconnect()
+                return status
+            except:
+                print(tags.main_tag + 'error in STS call')
+                self.amp.disconnect()
+                return False
         else:
             self.lb_status.setText('Error: check GPIB connection')
             QTimer.singleShot(2000, lambda: self.lb_status.setText(''))
+            return False
 
     def parse_status(self, raw_result):
 
@@ -194,6 +341,8 @@ class MainWindow(QMainWindow):
         num_elem = len(filtered_status)
 
         status_decimal = total_sum // num_elem
+
+        print(tags.main_tag + f'Dezimalantwort: {status_decimal}')
 
         status_binary = f'{status_decimal:08b}'
 
