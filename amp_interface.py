@@ -41,3 +41,8 @@ class AmpInterface:
         result = self.instr.read_bytes(1024)
         print(tags.amp_tag + 'Answer from device: ' + str(len(result)) + ' byte long answer')
         return result
+    
+    def query_sps(self, command):
+        self.instr.write(command)
+        result = self.instr.read_raw()
+        return result

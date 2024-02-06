@@ -99,8 +99,15 @@ class MainWindow(QMainWindow):
         self.bt_band1.clicked.connect(self.switch_band1)
         self.bt_band2.clicked.connect(self.switch_band2)
         self.bt_band3.clicked.connect(self.switch_band3)
-        self.bt_rst.clicked.connect(self.reset_faults)
+        self.bt_rst.clicked.connect(self.test_query_sps)
         self.bt_status.clicked.connect(self.status_button)
+
+    def test_query_sps(self):
+        cmd = "STAT"
+        if self.amp.connect(tags.sps_addr):
+            result = self.amp.query_command(cmd)
+            print(result)
+            self.amp.disconnect()
     
     def switch_band1(self):
         cmd = 'BAND1'
