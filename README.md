@@ -7,7 +7,7 @@ The python program represents a proof of concept, the final goal is implementing
 
  
 ### Basic functionality of the program
-The python program is supposed to be able to switch between frequency bands, display the current system status and if necessary reset any system faults. It uses the Qt library to display a GUI for user interaction.
+The python program is supposed to be able control the amplifier system so as to switch between frequency bands, display the current system status and if necessary reset any system faults. It uses the Qt library to display a GUI for user interaction.
 
 ### Using the program
 A packaged version of the program (using the pyinstaller library) including all dependancies and an executable is included under the dist directory. The procedure for starting the program in the current working context looks 
@@ -18,7 +18,7 @@ like this:
 
 ### The RF Amplifier System
 The Amplifier System consists of two separate assemblies (cabinets) and was installed in the late 80s to early 90s. It consists of three integrated amplifiers which in total can amplify in the
-frequency range of 10kHz up to 1GHz. The amplifiers are split into frequency bands 10kHz-200MHz, 200MHz-400MHz, 400MHz-1GHz. The amplifier in the lowest band (SPS) makes up the whole right cabinet and uses vacuum 
+frequency range of 10kHz up to 1GHz. The amplifiers are split into operating frequency bands 10kHz-200MHz, 200MHz-400MHz, 400MHz-1GHz. The amplifier in the lowest band (SPS) makes up the whole right cabinet and uses vacuum 
 tubes to produce its rated power output of 1kW. The other two solid-state amplifiers are located directly under the switching matrix (SIM) on the left cabinet and each have a power output of 500W.<br>
 Here is how the amplifier system reacts to the program, the left gif displays the remote band switching while the right one is the tube amplifier switching between standby and operating modes.
 <p float="middle">
