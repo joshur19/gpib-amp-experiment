@@ -1,7 +1,7 @@
 """
 file: interface for communication with device via pyvisa library
 author: josh
-last updated: 30/01/2024
+last updated: 07/02/2024
 """
 
 import pyvisa
@@ -40,9 +40,4 @@ class AmpInterface:
         self.instr.write(command)
         result = self.instr.read_bytes(1024)
         print(tags.amp_tag + 'Answer from device: ' + str(len(result)) + ' byte long answer')
-        return result
-    
-    def query_sps(self, command):
-        self.instr.write(command)
-        result = self.instr.read_raw()
         return result

@@ -1,7 +1,7 @@
 """
 file: main file that creates UI with Qt and defines the logic behind the view elements
 author: josh
-last updated: 30/01/2024
+last updated: 07/02/2024
 """
 
 import amp_interface
@@ -64,12 +64,13 @@ class MainWindow(QMainWindow):
         self.lb_lclrmt = QLabel('Local/Remote:')
         self.lb_flt = QLabel('Fault:')
         self.lb_llo = QLabel('Local Lockout:')
+        self.lb_spsmode = QLabel('SPS Mode: ')
 
-        # New labels
         self.lb_band_value = QLabel('')
         self.lb_lclrmt_value = QLabel('')
         self.lb_flt_value = QLabel('')
         self.lb_llo_value = QLabel('')
+        self.lb_spsmode_value = QLabel('')
 
         layout_status.addWidget(self.bt_status, 0, 0, 1, 2)
         layout_status.addWidget(self.lb_status, 1, 0, 1, 2)
@@ -82,6 +83,8 @@ class MainWindow(QMainWindow):
         layout_status.addWidget(self.lb_flt_value, 5, 1)
         layout_status.addWidget(self.lb_llo, 6, 0)
         layout_status.addWidget(self.lb_llo_value, 6, 1)
+        layout_status.addWidget(self.lb_spsmode, 7, 0)
+        layout_status.addWidget(self.lb_spsmode_value, 7, 1)
 
         gv_status.setLayout(layout_status)
         layout_main.addWidget(gv_status)
@@ -99,33 +102,28 @@ class MainWindow(QMainWindow):
         self.bt_band1.clicked.connect(self.switch_band1)
         self.bt_band2.clicked.connect(self.switch_band2)
         self.bt_band3.clicked.connect(self.switch_band3)
-        self.bt_rst.clicked.connect(self.test_query_sps)
+        self.bt_rst.clicked.connect(self.reset_faults)
         self.bt_status.clicked.connect(self.status_button)
-
-    def test_query_sps(self):
-        cmd = "STAT"
-        if self.amp.connect(tags.sps_addr):
-            result = self.amp.query_command(cmd)
-            print(result)
-            self.amp.disconnect()
     
     def switch_band1(self):
         cmd = 'BAND1'
         conn_error = True
-        self.reset_faults()
+        self.reset_faults()     # vor dem ersten STS Befehl wird ein RST durchgeschickt um den STS Fehler zu vermeiden
         counter = 0     # wie oft der Versuch des Bandwechsels wiederholt werden soll
-        status = self.ask_status()
+        status = self.ask_status()      # initiale Statusabfrage
 
         ## status fehler
         if status == False:
             self.lb_feedback.setText('Error computing status while switching bands')
             QApplication.processEvents()
+            QTimer.singleShot(2000, lambda: self.lb_feedback.setText(''))
             return
 
         ## wenn Band schon gewählt ist das auch so ausgeben
         if status[1] == 'BAND1':
             self.lb_feedback.setText('Already in Band 1')
             QApplication.processEvents()
+            QTimer.singleShot(2000, lambda: self.lb_feedback.setText(''))
             return
 
         ## wenn connection hergestellt werden kann
@@ -138,12 +136,12 @@ class MainWindow(QMainWindow):
 
             while status[1] != 'BAND1' and conn_error == False:
                 
-                if(counter >= 6):
+                if(counter >= 6):   # hier Abbruchbedingung Anzahl an Wiederholungen setzen
                     conn_error = True
 
                 self.amp.write_command(cmd)
                 time.sleep(2)
-                status = self.ask_status_conn()
+                status = self.ask_status_conn()     # Statusabfrage ohne wiederholte connection
 
                 if(status == False):
                     conn_error = True
@@ -162,7 +160,7 @@ class MainWindow(QMainWindow):
             self.lb_feedback.setText('Error setting Band 1')
             QTimer.singleShot(3000, lambda: self.lb_feedback.setText(''))
         
-        else:
+        else:   # erfolgreicher Bandwechsel
 
             # SPS auf OPR Modus bringen
             if self.amp.connect(tags.sps_addr):
@@ -172,11 +170,13 @@ class MainWindow(QMainWindow):
                     self.amp.write_command('OPER')      ## todo: gucken ob das auch erfolgreich war
                 except:
                     print(tags.main_tag + 'Error setting SPS to OPR-Mode')
+                    self.lb_spsmode_value.setText('ERR')
                 self.amp.disconnect()
 
             self.lb_feedback.setText('Switched to Band 1')
             QApplication.processEvents()
             self.display_status(status)
+            self.lb_spsmode_value.setText('OPR')
             QTimer.singleShot(4000, lambda: self.lb_feedback.setText(''))
 
     def switch_band2(self):     
@@ -190,12 +190,14 @@ class MainWindow(QMainWindow):
         if status == False:
             self.lb_feedback.setText('Error computing status while switching bands')
             QApplication.processEvents()
+            QTimer.singleShot(2000, lambda: self.lb_feedback.setText(''))
             return
 
         ## wenn Band schon gewählt ist das auch so ausgeben
         if status[1] == 'BAND2':
             self.lb_feedback.setText('Already in Band 2')
             QApplication.processEvents()
+            QTimer.singleShot(2000, lambda: self.lb_feedback.setText(''))
             return
 
         ## wenn connection hergestellt werden kann
@@ -220,6 +222,8 @@ class MainWindow(QMainWindow):
 
                 counter = counter+1
 
+            self.lb_spsmode_value.setText('STBY')   # sobald der SPS BAND command erkennt wechselt er
+
             self.amp.disconnect()
 
         ## keine connection zum Gerät
@@ -231,7 +235,7 @@ class MainWindow(QMainWindow):
         if conn_error:
             self.lb_feedback.setText('Error setting Band 2')
             QTimer.singleShot(3000, lambda: self.lb_feedback.setText(''))
-        else:
+        else:   # erfolgreicher Bandwechsel
             self.lb_feedback.setText('Switched to Band 2')
             QApplication.processEvents()
             self.display_status(status)
@@ -248,12 +252,14 @@ class MainWindow(QMainWindow):
         if status == False:
             self.lb_feedback.setText('Error computing status while switching bands')
             QApplication.processEvents()
+            QTimer.singleShot(2000, lambda: self.lb_feedback.setText(''))
             return
 
         ## wenn Band schon gewählt ist das auch so ausgeben
         if status[1] == 'BAND3':
             self.lb_feedback.setText('Already in Band 3')
             QApplication.processEvents()
+            QTimer.singleShot(2000, lambda: self.lb_feedback.setText(''))
             return
 
         ## wenn connection hergestellt werden kann
@@ -278,6 +284,8 @@ class MainWindow(QMainWindow):
 
                 counter = counter+1
 
+            self.lb_spsmode_value.setText('STBY')   # sobald der SPS BAND command erkennt wechselt er
+
             self.amp.disconnect()
 
         ## keine connection zum Gerät
@@ -289,7 +297,7 @@ class MainWindow(QMainWindow):
         if conn_error:
             self.lb_feedback.setText('Error setting Band 3')
             QTimer.singleShot(3000, lambda: self.lb_feedback.setText(''))
-        else:
+        else:   # erfolgreicher Bandwechsel
             self.lb_feedback.setText('Switched to Band 3')
             QApplication.processEvents()
             self.display_status(status)
@@ -301,7 +309,7 @@ class MainWindow(QMainWindow):
             self.amp.write_command(cmd)
             self.amp.disconnect()
         else:
-            return False        ## todo: kleinen Log-Eintrag schreiben
+            print(tags.main_tag + 'Error connecting to AMP.')
         
     def status_button(self):
         status = self.ask_status()
@@ -330,7 +338,7 @@ class MainWindow(QMainWindow):
                 self.amp.disconnect()
                 return status
             except:
-                print(tags.main_tag + 'error in STS call')
+                print(tags.main_tag + 'Error in STS call')
                 self.amp.disconnect()
                 return False
         else:
