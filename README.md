@@ -1,7 +1,7 @@
 ## Automating RF Amplifier System via GPIB
 
 The idea of this project is to make use of the GPIB interface of an old RF amplifier system to write a simple python program that integrates into testing procedures in the working context. Ideally this program will contribute to easing and streamlining testing procedures.
-The python program represents a proof of concept, the final goal is implementing the demonstrated functionality into existing testing software.
+The python program represents a proof of concept, the final goal is [implementing the demonstrated functionality into existing testing software](https://github.com/joshur19/AmpElektra).
 
  <div style="text-align: center;"><img src="media/gpib_demo.gif" alt="demo" width="600"/></div>
 
