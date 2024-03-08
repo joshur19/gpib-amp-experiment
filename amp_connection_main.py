@@ -89,6 +89,10 @@ class MainWindow(QMainWindow):
         gv_status.setLayout(layout_status)
         layout_main.addWidget(gv_status)
 
+        ## OPR Mode Button
+        self.bt_opr = QPushButton('SPS in OPR Modus')
+        layout_main.addWidget(self.bt_opr)
+
         ## reset flts button
         self.bt_rst = QPushButton('Reset Faults')
         layout_main.addWidget(self.bt_rst)
@@ -104,6 +108,25 @@ class MainWindow(QMainWindow):
         self.bt_band3.clicked.connect(self.switch_band3)
         self.bt_rst.clicked.connect(self.reset_faults)
         self.bt_status.clicked.connect(self.status_button)
+        self.bt_opr.clicked.connect(self.switch_opr)
+
+    def switch_opr(self):
+        status = self.ask_status()
+
+        if status[1] == 'BAND1':
+            if self.amp.connect(tags.sps_addr):
+                try:
+                    self.amp.write_command('OPER')
+                    time.sleep(1)
+                    self.amp.write_command('OPER')      ## todo: gucken ob das auch erfolgreich war
+                    self.lb_spsmode_value.setText('OPR')
+                except:
+                    print(tags.main_tag + 'Error setting SPS to OPR-Mode: check connection')
+                    self.lb_spsmode_value.setText('ERR')
+                self.amp.disconnect()
+        else:
+            self.lb_spsmode_value.setText('Verstärker nicht in Band 1!')
+            QTimer.singleShot(2000, lambda: self.lb_spsmode_value.setText('STBY'))
     
     def switch_band1(self):
         cmd = 'BAND1'
@@ -165,11 +188,11 @@ class MainWindow(QMainWindow):
             # SPS auf OPR Modus bringen
             if self.amp.connect(tags.sps_addr):
                 try:
-                    self.amp.write_command('STBY')
+                    self.amp.write_command('OPER')
                     time.sleep(1)
                     self.amp.write_command('OPER')      ## todo: gucken ob das auch erfolgreich war
                 except:
-                    print(tags.main_tag + 'Error setting SPS to OPR-Mode')
+                    print(tags.main_tag + 'Error setting SPS to OPR-Mode: check connection')
                     self.lb_spsmode_value.setText('ERR')
                 self.amp.disconnect()
 
