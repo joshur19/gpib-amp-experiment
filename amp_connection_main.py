@@ -1,7 +1,7 @@
 """
 file: main file that creates UI with Qt and defines the logic behind the view elements
 author: josh
-last updated: 07/02/2024
+last updated: 08/03/2024
 """
 
 import amp_interface
